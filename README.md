@@ -10,7 +10,7 @@ For example, to join the configuration files of different subsystems depending o
 And use it for learning of the XML DOM and XPath cross-browser manipulation.
 
 The usage
------
+---------
 
 **var oMX = new MergeXML([opts]);**
 
@@ -50,7 +50,7 @@ The result object can be accessed also via *oMX.dom* property. The properties av
 - **nsp** - namespaces object (prefix:URI)
 - **count** - number of sources merged
 - **error** - error information
- - error.code ('' is ok)
+ - error.code ('' means ok)
  - error.text
 
 The sources must have the same default namespace (if have at all).
@@ -58,7 +58,7 @@ Prefix '_' is reserved to handle default namespace.
 IE doesn't allow replacement of the root node attributes.
 
 The package
-------
+-----------
 
 The following files are included:
 
