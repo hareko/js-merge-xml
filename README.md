@@ -64,7 +64,7 @@ The following files are included:
 
 1. *mergexml.js* - the MergeXML class; supports IE, Firefox, Safari, Chrome, Opera;
 2. *example.html* - multi-selects the xml files and displays result;
-3. *example.js* - passes the xml data and returns result; **needs HTML5**;
+3. *example.js* - passes the xml data and returns result; **requires HTML5**;
 4. *test1.xml, test2.xml* - test data for the example.
 
 The MergeXML is realized also in PHP (see [github.com]).
