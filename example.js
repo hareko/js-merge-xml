@@ -25,7 +25,7 @@ function Example() {
    * @param {string} id
    * @param {function} fnc
    */
-  var addEvent = function(evt, id, fnc) {
+  var AddEvent = function(evt, id, fnc) {
     var elem = $(id);
     if (elem.addEventListener)  // W3C DOM
       elem.addEventListener(evt, fnc, false);
@@ -87,15 +87,14 @@ function Example() {
    * Show results
    */
   var FileMerge = function() {
+    var err = '';
     var r = FileCheck();
     if (typeof r === 'string') {
-      var err = oMX.error.text + ': ' + r;
+      err = oMX.error.text + ': ' + r;
     } else if (r === null) {
       err = 'Files are not loaded yet';
     } else if (oMX.count < 2) {
       err = 'Minimum 2 files are required';
-    } else {
-      err = '';
     }
     $('output').innerHTML = err ? err : oMX.Get(2);
   };
@@ -105,8 +104,8 @@ function Example() {
   } else if (!window.File || !window.FileList || !window.FileReader) {
     $('output').innerHTML = 'Sorry, the demo needs a browser supporting FileReader API';
   } else {
-    addEvent('change', 'files', FileSelect);
-    addEvent('click', 'merge', FileMerge);
+    AddEvent('change', 'files', FileSelect);
+    AddEvent('click', 'merge', FileMerge);
   }
 
 }
