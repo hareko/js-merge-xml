@@ -215,13 +215,14 @@
      */
     var Merge = function(src, pth) {
       for (var i = 0; i < src.childNodes.length; i++) {
+        var tmp;
         var node = src.childNodes[i]; //$node->getNodePath()
         var path = GetNodePath(src.childNodes, node, pth, i);
         var obj = that.Query(path);
         if (node.nodeType === XML_ELEMENT_NODE) {
           var flg = true;  /* replace existing node by default */
           if (obj === null || obj.namespaceURI !== node.namespaceURI) {
-            var tmp = node.cloneNode(true); /* take existing node */
+            tmp = node.cloneNode(true); /* take existing node */
             obj = that.Query(pth); /* destination parent */
             obj.appendChild(tmp); /* add a node */
           } else {
@@ -266,10 +267,10 @@
      * @return {string} query path
      */
     var GetNodePath = function(nodes, node, pth, eln) {
-      var p;
+      var p, i;
       var j = 0;
       if (node.nodeType === XML_ELEMENT_NODE) {
-        for (var i = 0; i <= eln; i++) {
+        for (i = 0; i <= eln; i++) {
           if ((updn && nodes[i].nodeType === node.nodeType && nodes[i].nodeName === node.nodeName) ||
                   (!updn && nodes[i].nodeType !== XML_PI_NODE)) {
             j++;
@@ -299,7 +300,7 @@
           p = 'node()';
         }
       } else if (node.nodeType === XML_TEXT_NODE || node.nodeType === XML_COMMENT_NODE) {
-        for (var i = 0; i <= eln; i++) {
+        for (i = 0; i <= eln; i++) {
           if (nodes[i].nodeType === node.nodeType) {
             j++;
           }
@@ -479,7 +480,7 @@
             break;    /* xPath supported */
           }
         } catch (e) {
-          /* skip */;
+          /* skip */
         }
       }
       if (f) {
