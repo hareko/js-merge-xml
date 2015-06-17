@@ -381,11 +381,11 @@
 
     /**
      * find array memeber by value
-     * @param {array} arr
      * @param {mixed} val
+     * @param {array} arr
      * @returns {mixed}
      */
-    var ArraySearch = function(arr, val) {
+    var ArraySearch = function(val, arr) {
       var rlt = false;
       for (var key in arr) {
         if (arr[key] === val) {
