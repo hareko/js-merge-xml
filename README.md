@@ -69,6 +69,14 @@ The following files are included:
 
 The MergeXML is realized also in PHP (see [github.com]).
 
+The tests
+--------
+
+To run the tests:
+
+1. install dependencies with `npm install`
+2. run tests with `npm test`
+
 ChangeLog
 ---------
 
