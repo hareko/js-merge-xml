@@ -1,0 +1,22 @@
+{
+  "name": "mergexml",
+  "version": "1.1.0",
+  "description": "Merge multiple XML sources",
+  "main": "example.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hareko/js-merge-xml"
+  },
+  "keywords": [
+    "xml",
+    "merge"
+  ],
+  "author": "Vallo Reima",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hareko/js-merge-xml/issues"
+  }
+}
