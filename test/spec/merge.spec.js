@@ -111,4 +111,27 @@ describe('Merging XML sources', function() {
         });
     });
 
+    describe('with namespaced attributes', function() {
+        var merger;
+        var ns = 'https://github.com/enketo/merge-xml';
+
+        it('correctly adds namespaced attributes from second source', function() {
+            merger = new MergeXML({
+                join: false
+            });
+            a = '<a>' +
+                '<c>s1</c>' +
+                '</a>';
+            b = '<a xmlns:enk="' + ns + '">' +
+                '<c enk:custom="something">s2</c>' +
+                '</a>';
+            merger.AddSource(a);
+            merger.AddSource(b);
+            expect(merger.Get(1)).to.equal('<a xmlns:enk="' + ns + '"><c enk:custom="something">s2</c></a>');
+            expect(merger.Get(0).querySelector('c').attributes[0].localName).to.equal('custom');
+            expect(merger.Get(0).querySelector('c').attributes[0].namespaceURI).to.equal(ns);
+        })
+
+    })
+
 });
