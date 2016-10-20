@@ -1,7 +1,7 @@
-JS MergeXML class
+MergeXML [![npm version](https://badge.fury.io/js/mergexml.svg)](https://badge.fury.io/js/mergexml)
 ==================
 
-The class allows to merge the XML sources (files, strings, objects) into single DOM XML object.
+MergeXML merges the XML sources (files, strings, objects) into single DOM XML object.
 The merging is performed recursively on the node level adding new elements and replacing existing ones.
 The nodes with the same path/name are replaced/added sequentially and the modification can be controlled by the options.
 
@@ -11,6 +11,10 @@ For example, to join the configuration files of different subsystems depending o
 
 The usage
 -----
+
+**var MergeXML = require('mergexml');**
+
+MergeXML can included as a global script or with `npm install mergexml --save` and loaded as shown above.
 
 **var oMX = new MergeXML([opts]);**
 
