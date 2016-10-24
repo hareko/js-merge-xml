@@ -7,6 +7,7 @@ describe('Instantiating object ', function() {
 
     it('works', function() {
         merger = new MergeXML();
+
         expect(merger).to.be.an('object');
     });
 
@@ -19,6 +20,7 @@ describe('Adding source', function() {
         merger = new MergeXML();
         a = '<a/>';
         b = '<b/>';
+
         expect(merger.AddSource(a)).to.not.equal(false);
         expect(merger.AddSource(b)).to.not.equal(false);
     });
@@ -55,6 +57,7 @@ describe('Merging XML sources', function() {
             b = '<b/>';
             merger.AddSource(a);
             merger.AddSource(b);
+
             expect(merger.Get(1)).to.equal('<a/>');
         });
 
@@ -84,6 +87,7 @@ describe('Merging XML sources', function() {
             merger = new MergeXML();
             merger.AddSource(a);
             merger.AddSource(b);
+
             expect(merger.Get(1)).to.equal('<a><c>s1</c><c>s4</c><b>s2</b></a>');
         });
 
@@ -107,6 +111,7 @@ describe('Merging XML sources', function() {
                 '</a>';
             merger.AddSource(a);
             merger.AddSource(b);
+
             expect(merger.Get(1)).to.equal('<a><c>s1</c><c>s2</c><c>s4</c></a>');
         });
     });
@@ -127,11 +132,47 @@ describe('Merging XML sources', function() {
                 '</a>';
             merger.AddSource(a);
             merger.AddSource(b);
+
+            expect(merger.error.code).to.equal('');
+            expect(merger.error.text).to.equal('');
             expect(merger.Get(1)).to.equal('<a xmlns:enk="' + ns + '"><c enk:custom="something">s2</c></a>');
             expect(merger.Get(0).querySelector('c').attributes[0].localName).to.equal('custom');
             expect(merger.Get(0).querySelector('c').attributes[0].namespaceURI).to.equal(ns);
         })
 
     })
+
+    describe('with sources that have and do not have a UTF encoding declaration', function() {
+        var merger;
+        var a = '<?xml version="1.0"?>' +
+            '<a><c>s1</c></a>';
+        var b = '<?xml version="1.0" encoding="UTF-8"?>' +
+            '<a><c>s2</c></a>';
+
+        it('undeclared and UTF-8', function() {
+            merger = new MergeXML({
+                join: false
+            });
+            merger.AddSource(a);
+            merger.AddSource(b);
+
+            expect(merger.error.code).to.equal('');
+            expect(merger.error.text).to.equal('');
+            expect(merger.Get(1)).to.contain('<a><c>s2</c></a>');
+        });
+
+        it('UTF8 and undeclared', function() {
+            merger = new MergeXML({
+                join: false
+            });
+            merger.AddSource(b);
+            merger.AddSource(a);
+
+            expect(merger.error.code).to.equal('');
+            expect(merger.error.text).to.equal('');
+            expect(merger.Get(1)).to.contain('<a><c>s1</c></a>');
+        });
+
+    });
 
 });
