@@ -69,7 +69,9 @@ The following files are included:
 1. *mergexml.js* - the MergeXML class; supports IE, Firefox, Safari, Chrome, Opera;
 2. *example.html* - multi-selects the xml files and displays result;
 3. *example.js* - passes the xml data and returns result; **requires HTML5**;
-4. *test1.xml, test2.xml* - test data for the example.
+4. *test1.xml, test2.xml* - test data for the example;
+5. *package.json, bower.json* - package details;
+6. *test* - tests framework.
 
 The MergeXML is realized also in PHP (see [github.com]).
 
@@ -85,9 +87,17 @@ To run the tests:
 ChangeLog
 ---------
 
-09 June 2015
+June 2015
 
 - *mergexml.js*
- - the wrapper is added for a compatibility with the AMD/CommonJS (Martijn van de Rijdt)
+ - the wrapper is added for a compatibility with the AMD/CommonJS
+ 
+October 2016
+
+- *mergexml.js* (Martijn van de Rijdt)
+ - cloning the namespaced attributes correctly
+ - mixing sources of undeclared encoding
+- *package.json*
+ - version 1.1.1
  
   [github.com]: http://www.github.com/hareko/php-merge-xml
