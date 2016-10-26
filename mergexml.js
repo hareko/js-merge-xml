@@ -4,7 +4,7 @@
  * 
  * @package     MergeXML
  * @author      Vallo Reima
- * @copyright   (C)2014
+ * @copyright   (C)2014-2016
  */
 
 /**
