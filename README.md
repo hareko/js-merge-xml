@@ -92,9 +92,9 @@ June 2015
 - *mergexml.js*
  - the wrapper is added for a compatibility with the AMD/CommonJS
  
-October 2016
+October 2016 (Martijn van de Rijdt)
 
-- *mergexml.js* (Martijn van de Rijdt)
+- *mergexml.js*
  - cloning the namespaced attributes correctly
  - mixing sources of undeclared encoding
 - *package.json*
