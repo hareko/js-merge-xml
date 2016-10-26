@@ -46,7 +46,7 @@ You can get the XML result tree:
 
 The result object can be accessed also via *oMX.dom* property. The properties available:
 
-- **dom** - result XML DOM object
+- **dom** - result XML DOM object - **Note that in older IE browsers this is an ActiveX Object and not a standard XML Document!**
 - **nsp** - namespaces object (prefix:URI)
 - **count** - number of sources merged
 - **error** - error information
