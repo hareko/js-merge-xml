@@ -165,7 +165,9 @@
      */
     var CheckSource = function(doc) {
       var rlt = true;
-      if (doc.inputEncoding !== that.dom.inputEncoding || doc.xmlEncoding !== that.dom.xmlEncoding) {
+      var charSet1 = that.dom.characterSet || that.dom.inputEncoding || that.dom.xmlEncoding;
+      var charSet2 = doc.characterSet || doc.inputEncoding || doc.xmlEncoding
+      if (charSet2 !== charSet1) {
         rlt = Error('enc');
       } else if (doc.documentElement.namespaceURI !== that.dom.documentElement.namespaceURI) { /* $dom->documentElement->lookupnamespaceURI(NULL) */
         rlt = Error('nse');
@@ -173,8 +175,8 @@
         if (!join[0]) {
           rlt = Error('dif');
         } else if (!join[1]) {
-          var enc = that.dom.inputEncoding ? that.dom.inputEncoding : (that.dom.xmlEncoding ? that.dom.xmlEncoding : 'utf-8'),
-                  ver = that.dom.xmlVersion ? that.dom.xmlVersion : '1.0';
+          var enc = typeof charSet1 !== 'undefined' ? charSet1 : 'UTF-8';
+          var ver = that.dom.xmlVersion ? that.dom.xmlVersion : '1.0';
           var xml = '<?xml version="' + ver + '" encoding="' + enc + "\"?>\r\n<" + join[0] + ">\r\n</" + join[0] + '>';
           var d = Load(xml);
           if (d) {
