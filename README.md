@@ -97,6 +97,5 @@ October 2016 (Martijn van de Rijdt)
 - *mergexml.js*
  - cloning the namespaced attributes correctly
  - mixing sources of undeclared encoding
-- version 1.1.1
  
   [github.com]: http://www.github.com/hareko/php-merge-xml
