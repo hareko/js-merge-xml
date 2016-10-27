@@ -196,7 +196,12 @@
         var a = NameSpaces(doc.documentElement);
         for (var c in a) {
           if (!that.nsp[c]) {
-            that.dom.documentElement.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:' + c, a[c]);
+            if (typeof that.dom.documentElement.setAttributeNS !== 'undefined') {
+              that.dom.documentElement.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:' + c, a[c]);
+            } else {
+              // no choice but to use the incorrect setAttribute instead
+              that.dom.documentElement.setAttribute('xmlns:' + c, a[c]);
+            }
             that.nsp[c] = a[c];
           }
         }
@@ -234,7 +239,7 @@
             if (flg) {
               try {
                 for (var j = 0; j < node.attributes.length; j++) { /* add/replace attributes */
-                  if (node.attributes[j].namespaceURI) {
+                  if (node.attributes[j].namespaceURI && typeof node.setAttributeNS !== 'undefined') {
                     obj.setAttributeNS(node.attributes[j].namespaceURI, node.attributes[j].nodeName, node.attributes[j].nodeValue);
                   } else {
                     obj.setAttribute(node.attributes[j].nodeName, node.attributes[j].nodeValue);

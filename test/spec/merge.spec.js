@@ -46,7 +46,7 @@ describe('Merging XML sources', function() {
             b = '<r><b/></r>';
             merger.AddSource(a);
             merger.AddSource(b);
-            expect(merger.Get(1)).to.equal('<r><a/><b/></r>');
+            expect(merger.Get(1).trim()).to.equal('<r><a/><b/></r>');
         });
 
         it('fails to merge second source if sources do not have a common root name', function() {
@@ -58,7 +58,7 @@ describe('Merging XML sources', function() {
             merger.AddSource(a);
             merger.AddSource(b);
 
-            expect(merger.Get(1)).to.equal('<a/>');
+            expect(merger.Get(1).trim()).to.equal('<a/>');
         });
 
     });
@@ -82,13 +82,13 @@ describe('Merging XML sources', function() {
                 '</a>';
             merger.AddSource(a);
             merger.AddSource(b);
-            expect(merger.Get(1)).to.equal('<a><c>s1</c><c>s4</c><b>s2</b></a>');
+            expect(merger.Get(1).trim()).to.equal('<a><c>s1</c><c>s4</c><b>s2</b></a>');
 
             merger = new MergeXML();
             merger.AddSource(a);
             merger.AddSource(b);
 
-            expect(merger.Get(1)).to.equal('<a><c>s1</c><c>s4</c><b>s2</b></a>');
+            expect(merger.Get(1).trim()).to.equal('<a><c>s1</c><c>s4</c><b>s2</b></a>');
         });
 
     });
@@ -112,7 +112,7 @@ describe('Merging XML sources', function() {
             merger.AddSource(a);
             merger.AddSource(b);
 
-            expect(merger.Get(1)).to.equal('<a><c>s1</c><c>s2</c><c>s4</c></a>');
+            expect(merger.Get(1).trim()).to.equal('<a><c>s1</c><c>s2</c><c>s4</c></a>');
         });
     });
 
@@ -135,9 +135,10 @@ describe('Merging XML sources', function() {
 
             expect(merger.error.code).to.equal('');
             expect(merger.error.text).to.equal('');
-            expect(merger.Get(1)).to.equal('<a xmlns:enk="' + ns + '"><c enk:custom="something">s2</c></a>');
-            expect(merger.Get(0).querySelector('c').attributes[0].localName).to.equal('custom');
-            expect(merger.Get(0).querySelector('c').attributes[0].namespaceURI).to.equal(ns);
+            expect(merger.Get(1).trim()).to.equal('<a xmlns:enk="' + ns + '"><c enk:custom="something">s2</c></a>');
+            // in IE11 and below, merger.Get(0) returns an ActiveXObject we use the internal "Query" function
+            expect(merger.Query('//c').attributes[0].localName).to.equal('custom'); // fails in IE because
+            expect(merger.Query('//c').attributes[0].namespaceURI).to.equal(ns);
         })
 
     })
