@@ -8,7 +8,7 @@ The nodes with the same path/name are replaced/added sequentially and the modifi
 MergeXML could be useful in cases where it is necessary to gather XML data from multiple sources.
 For example, to join the configuration files of different subsystems depending on the system operation. 
 
-This is a *browser-oriented* solution using the window objects DOMParser, XPathEvaluator. Your contribution is welcomed to supplement the class with the NodeJS implementations, such as xmldom, xpath.
+This is a **browser-oriented** solution using the window objects DOMParser, XPathEvaluator. Your contribution is welcomed to supplement the class with the NodeJS implementations, such as xmldom, xpath.
 
 
 The usage
