@@ -1,0 +1,55 @@
+<!--
+/**
+ * JS MergeXML NodeJS usage sample
+ * multi-select local xml files
+ *
+ * @package     MergeXML
+ * @author      Vallo Reima
+ * @copyright   (C) 2019
+ */
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>NodeJS MergeXML usage sample</title>
+    <style>
+      button, p {
+        font-weight: bold;
+      }
+      span {
+        font-weight: normal;
+      }
+      iframe {
+        width: 600px;
+        height: 750px;
+        border: 1px solid grey;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>NodeJS MergeXML class to merge multiple XML sources</h3>
+    <form action="%url%" method="post" enctype="multipart/form-data" target="output">
+      <label for="files">Multi-select:</label> 
+      <input type="file" id="files" name="files[]" multiple>
+      <button type="submit" name="submit">Merge XMLs</button>
+    </form> 
+    <p>Result: <span id="result"></span></p>
+    <iframe id="output" name="output"></iframe>
+    <script>
+      /* input files selection event  */
+      document.getElementById('files').addEventListener('change', function (evt) {
+        var rlt = '';
+        var fls = evt.target.files; /* FileList object */
+        for (var i = 0; i < fls.length; i++) { /* loop the selected files */
+          rlt += ', ' + fls[i].name; //get name
+        }
+        document.getElementById('result').innerHTML = rlt.substr(2); //display filenames
+        var out = document.getElementById('output').contentDocument || document.getElementById('output').contentWindow.document;
+        out.removeChild(out.documentElement); //remove previous output
+      });
+    </script>
+  </body>
+</html>
