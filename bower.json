@@ -1,6 +1,6 @@
 {
   "name": "mergexml",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Merge multiple XML sources",
   "main": "mergexml.js",
   "moduleType": [
@@ -20,8 +20,6 @@
   "ignore": [
     "**/.*",
     "node_modules",
-    "bower_components",
-    "test",
-    "tests"
+    "bower_components"
   ]
 }
