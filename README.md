@@ -61,18 +61,18 @@ The result object can be accessed also via *oMX.dom* property. The properties av
  - error.text
 
 The sources must have the same default namespace (if have at all).
-Prefix '_' is reserved to handle default namespace.
+Prefix '_' is reserved to handle the default namespace.
 IE doesn't allow replacement of the root node attributes.
 
 NodeJS
 ------
-The browser window objects' *DOMParser, XPathEvaluator, XMLSerializer* functionality is implemented by the *xpath, xmldom* modules. The sample requires also *formidable* module.
+The browser window objects' (*DOMParser, XPathEvaluator, XMLSerializer*) functionality is implemented by the *xpath, xmldom* modules. The sample requires also the *formidable* module.
 
-Install the modules by starting **NPM** from the directory where you have downloaded the package files.
+Install the modules by starting **NPM** from the directory where you have downloaded the package files:
 
 >npm i -D xpath xmldom formidable
 
-Start the NodeJS service with the sample:
+Start the NodeJS service with the sample script:
 
 >node examplen.js
 
@@ -85,7 +85,7 @@ The package
 
 The examples require **HTML5**. The following files are included:
 
-1. *mergexml.js* - the MergeXML class supporting the browser and NodeJS environments;
+1. *mergexml.js* - MergeXML class supporting the browser and NodeJS environments;
 2. *example.html* - multi-selects the xml files and displays result (browser);
 3. *example.js* - passes the xml data and returns result (browser);
 4. *examplen.htm* - client-side template to multi-select the xml files and display result (NodeJS);
