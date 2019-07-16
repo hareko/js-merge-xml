@@ -1,10 +1,11 @@
 /**
- * XML merging class
- * Merge multiple XML sources
+ * JS XML merging class
+ * merge multiple XML sources
+ * supports browser and NodeJS environments
  * 
  * @package     MergeXML
  * @author      Vallo Reima
- * @copyright   (C)2014-2016
+ * @copyright   (C)2014-2019
  */
 
 /**
@@ -12,7 +13,7 @@
  * @param {object} root
  * @param {function} factory
  */
-(function(root, factory) {
+(function (root, factory) {
   "use strict";
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module
@@ -21,25 +22,36 @@
     // Does not work with strict CommonJS, 
     // but only CommonJS-like environments 
     // that support module.exports, like Node
+    if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+      try {  //obtain NodeJS modules
+        global.XPathEvaluator = require('xpath');
+        global.DOMParser = require('xmldom').DOMParser;
+        global.XMLSerializer = require('xmldom').XMLSerializer;
+      } catch (e) {
+        console.log(e.message);
+      }
+    }
     module.exports = factory();
   } else {
     // Direct call, root is the owner (window)
     root.MergeXML = factory();
   }
-}(this, function() {
+}(this, function () {
   /**
    * Return a function as the exported value
    * @param {object} opts -- stay, join, updn (see readme)
    */
-  return function(opts) {
+  return function (opts) {
 
     var mde;        /* access mode 0,1,2 */
     var msv;        /* MS DOM version */
-    var psr;        /* DOM parser object */
-    var nse;        /* parsererror namespace */
-    var xpe;        /* xPath evaluator */
-    var nsr;        /* namespace resolver */
+    var psr;        /* DOMParser object */
+    var srl;        /* XMLSerializer object */
+    var xpe;        /* xPath evaluator object */
+    var xpr;        /* XPathResult object */
+    var nsr;        /* namespace resolver method*/
     var nsd = '_';  /* default namespace prefix */
+    var nse;        /* parsererror namespace */
     var stay;       /* overwrite protection */
     var join;       /* joining root name and status*/
     var updn;       /* update nodes sequentially by name */
@@ -49,7 +61,7 @@
     var XML_PI_NODE = 7;
     var that = this;
 
-    that.Init = function() {
+    that.Init = function () {
       that.dom = null; /* result DOM object */
       that.nsp = {};   /* namespaces */
       that.count = 0; /* adding counter */
@@ -65,7 +77,7 @@
      * @param {object} file -- FileList element
      * @return {object|false}
      */
-    that.AddFile = function(file) {
+    that.AddFile = function (file) {
       var rlt;
       if (!file || !file.target) {
         rlt = Error('nof');
@@ -83,11 +95,11 @@
      * @return mixed -- false - bad content
      *                  object - result
      */
-    that.AddSource = function(xml) {
+    that.AddSource = function (xml) {
       var rlt, doc;
       if (typeof xml === 'object') {
         doc = that.Get(1, xml) ? xml : false;
-        if (doc && ((mde === 1 && !window.DOMParser) || (mde === 2 && !doc.selectSingleNode('/')))) {
+        if (doc && ((mde > 1 && !DOMParser) || (mde === 1 && !doc.selectSingleNode('/')))) {
           doc = null; /* not compatible */
         }
       } else {
@@ -126,9 +138,9 @@
      *                    true - 1st load
      *                    object - loaded doc
      */
-    var Load = function(src) {
+    var Load = function (src) {
       var rlt, doc;
-      if (mde === 1) {
+      if (mde > 1) {
         if (that.dom) {
           doc = psr.parseFromString(src, 'text/xml');
           rlt = ParseError(doc) ? doc : false;
@@ -154,7 +166,7 @@
      * @param {object} doc
      * @return {bool} -- true - ok
      */
-    var ParseError = function(doc) {
+    var ParseError = function (doc) {
       return doc.getElementsByTagNameNS(nse, 'parsererror').length === 0;
     };
 
@@ -163,10 +175,10 @@
      * @param {object} doc
      * @return {bool} -- true - ok
      */
-    var CheckSource = function(doc) {
+    var CheckSource = function (doc) {
       var rlt = true;
       var charSet1 = that.dom.characterSet || that.dom.inputEncoding || that.dom.xmlEncoding;
-      var charSet2 = doc.characterSet || doc.inputEncoding || doc.xmlEncoding
+      var charSet2 = doc.characterSet || doc.inputEncoding || doc.xmlEncoding;
       if (charSet2 !== charSet1) {
         rlt = Error('enc');
       } else if (doc.documentElement.namespaceURI !== that.dom.documentElement.namespaceURI) { /* $dom->documentElement->lookupnamespaceURI(NULL) */
@@ -208,9 +220,11 @@
         if (!updn) {
           nsr = null;
         } else if (mde === 1) {
-          nsr = Resolver;
-        } else {
           ResolverIE();
+        } else if (mde === 3) {
+          nsr = that;
+        } else {
+          nsr = that.lookupNamespaceURI;
         }
       }
       return rlt;
@@ -220,7 +234,7 @@
      * @param {object} src -- current source node
      * @param {string} pth -- current source path
      */
-    var Merge = function(src, pth) {
+    var Merge = function (src, pth) {
       for (var i = 0; i < src.childNodes.length; i++) {
         var tmp;
         var node = src.childNodes[i]; //$node->getNodePath()
@@ -264,6 +278,7 @@
             obj.appendChild(tmp); /* add leaf */
           } else {
             obj.nodeValue = node.nodeValue; /* replace leaf */
+            obj.data = node.data; //to ensure serializing
           }
         }
       }
@@ -277,7 +292,7 @@
      * @param {int} eln -- element sequence number
      * @return {string} query path
      */
-    var GetNodePath = function(nodes, node, pth, eln) {
+    var GetNodePath = function (nodes, node, pth, eln) {
       var p, i;
       var j = 0;
       if (node.nodeType === XML_ELEMENT_NODE) {
@@ -293,7 +308,7 @@
           for (var c in a) {
             if (c !== nsd) {
               that.nsp[c] = a[c];
-              f = (mde === 2);
+              f = (mde === 1);
             }
           }
           if (f) {
@@ -331,7 +346,7 @@
      * @param {object} node
      * @return {array} 
      */
-    var NameSpaces = function(node) {
+    var NameSpaces = function (node) {
       var rlt = {};
       var attrs = node.attributes;
       for (var i = 0; i < attrs.length; ++i) {
@@ -349,20 +364,19 @@
      * @param {string} qry -- query statement
      * @return {object}
      */
-    that.Query = function(qry) {
+    that.Query = function (qry) {
       var rlt;
       if (join[1]) {
         qry = '/' + that.dom.documentElement.nodeName + (qry === '/' ? '' : qry);
       }
       try {
-        if (mde === 1) {
-          rlt = xpe.evaluate(qry, that.dom, nsr, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+        if (mde > 1) {
+          rlt = xpe.evaluate(qry, that.dom, nsr, xpr.FIRST_ORDERED_NODE_TYPE, null);
           rlt = rlt.singleNodeValue;
         } else {
           rlt = that.dom.selectSingleNode(qry);
         }
-      }
-      catch (e) {
+      } catch (e) {
         rlt = null; /* no such path */
       }
       return rlt;
@@ -373,14 +387,20 @@
      * @param {string} pfx node prefix
      * @return {string} namespace URI
      */
-    var Resolver = function(pfx) {
+    that.lookupNamespaceURI = function (pfx) {
       return that.nsp[pfx] || null;
     };
+    /*    var Resolver = function (pfx) {
+     this.lookupNamespaceURI = function (_pfx) {
+     return that.nsp[_pfx] || null;
+     };
+     return this.lookupNamespaceURI(pfx);
+     }; */
 
     /**
      * XPath IE Resolver 
      */
-    var ResolverIE = function() {
+    var ResolverIE = function () {
       var p = '';
       for (var c in that.nsp) {
         p += ' xmlns:' + c + '=' + "'" + that.nsp[c] + "'";
@@ -396,7 +416,7 @@
      * @param {array} arr
      * @returns {mixed}
      */
-    var ArraySearch = function(val, arr) {
+    var ArraySearch = function (val, arr) {
       var rlt = false;
       for (var key in arr) {
         if (arr[key] === val) {
@@ -415,7 +435,7 @@
      * @param {object} doc
      * @return {mixed}
      */
-    that.Get = function(flg, doc) {
+    that.Get = function (flg, doc) {
       var rlt;
       if (flg && !doc) {
         doc = that.dom;
@@ -428,9 +448,10 @@
         rlt = doc.xml;
       } else {
         try {
-          rlt = (new XMLSerializer()).serializeToString(doc);
+          rlt = srl.serializeToString(doc);
         } catch (e) {
-          rlt = null;
+          rlt = e.message;
+          flg = null;
         }
       }
       if (rlt && flg === 2) { /* make html view */
@@ -449,7 +470,7 @@
      * @param {string} err -- token
      * @return {false}
      */
-    var Error = function(err) {
+    var Error = function (err) {
       var errs = {
         nod: 'XML DOM is not supported in this browser',
         nox: 'xPath is not supported in this browser',
@@ -469,13 +490,17 @@
     };
 
     /**
-     * identify browser functionality
-     * @return {int|string} mode number or error code
+     * detect evironment, check functionality
+     * @return {int} -- mode: 0 - N/A
+     *                        1 - IE
+     *                        2 - browser
+     *                        3 - nodejs
+     *         {string} -- error code
      */
-    var GetMode = function() {
+    var GetMode = function () {
       var m;
       var f = false;
-      var vers = [
+      var vers = [ //IE 
         'MSXML2.DOMDocument.6.0',
         'MSXML2.DOMDocument.3.0',
         'MSXML2.DOMDocument',
@@ -497,20 +522,39 @@
       if (f) {
         if (i < n) {
           msv = vers[i];
-          m = 2;  /* IE mode */
+          m = 1;  /* IE mode */
         } else {
           m = 'nox';  /* no xPath */
         }
-      } else if (!window.DOMParser) {
-        m = 'nod';  /* no DOM */
-      } else if (!window.XPathEvaluator) {
-        m = 'nox';  /* no xPath */
       } else {
-        psr = new DOMParser();
-        var e = psr.parseFromString('Invalid', 'text/xml'); /* to detect source error */
-        nse = e.getElementsByTagName('parsererror')[0].namespaceURI;
-        xpe = new XPathEvaluator();
-        m = 1;  /*  Firefox, Safari, Chrome, Opera */
+        var env;
+        if (typeof window !== 'undefined') {
+          env = window;
+          m = 2;  /* Edge, Firefox, Safari, Chrome, Opera */
+        } else if (typeof global !== 'undefined') {
+          env = global;
+          m = 3; // NodeJS
+        } else {
+          env = {}; //unknown
+        }
+        if (!env.DOMParser) {
+          m = 'nod';  /* no DOM */
+        } else if (!env.XPathEvaluator) {
+          m = 'nox';  /* no xPath */
+        } else {
+          psr = new env.DOMParser();
+          srl = new env.XMLSerializer();
+          var e = psr.parseFromString('Invalid', 'text/xml'); /* to detect source error */
+          if (m === 2) {
+            xpe = new env.XPathEvaluator();
+            xpr = env.XPathResult;
+            nse = e.getElementsByTagName('parsererror')[0].namespaceURI;
+          } else {
+            xpe = env.XPathEvaluator;
+            xpr = env.XPathEvaluator.XPathResult;
+            nse = 'http://www.w3.org/1999/xhtml';
+          }
+        }
       }
       return m;
     };
