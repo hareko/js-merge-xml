@@ -1,4 +1,4 @@
-MergeXML [![npm version](https://badge.fury.io/js/mergexml.svg)](https://badge.fury.io/js/mergexml)
+JS MergeXML [![npm version](https://badge.fury.io/js/mergexml.svg)](https://badge.fury.io/js/mergexml)
 ==================
 
 MergeXML merges the XML sources (files, strings, objects) into single DOM XML object.
@@ -8,15 +8,16 @@ The nodes with the same path/name are replaced/added sequentially and the modifi
 MergeXML could be useful in cases where it is necessary to gather XML data from multiple sources.
 For example, to join the configuration files of different subsystems depending on the system operation. 
 
-This is a **browser-oriented** solution using the window objects DOMParser, XPathEvaluator. Your contribution is welcomed to supplement the class with the NodeJS implementations, such as xmldom, xpath.
-
+Supports main browsers (IE, Edge, Chrome, Firefox, Safari, Opera) and NodeJS (see below).
 
 The usage
 -----
 
-**var MergeXML = require('mergexml');**
+**`<script src="mergexml.js"></script>`**
 
-MergeXML can included as a global script or with `npm install mergexml --save` and loaded as shown above.
+**`const MergeXML = require('mergexml');`**
+
+MergeXML can be included as a global script or with `npm install mergexml --save` and loaded as shown above.
 
 **var oMX = new MergeXML([opts]);**
 
@@ -63,28 +64,36 @@ The sources must have the same default namespace (if have at all).
 Prefix '_' is reserved to handle default namespace.
 IE doesn't allow replacement of the root node attributes.
 
+NodeJS
+------
+The browser window objects' *DOMParser, XPathEvaluator, XMLSerializer* functionality is implemented by the *xpath, xmldom* modules. The sample requires also *formidable* module.
+
+Install the modules by starting **NPM** from the directory where you have downloaded the package files.
+
+>npm i -D xpath xmldom formidable
+
+Start the NodeJS service with the sample:
+
+>node examplen.js
+
+Run the sample in your browser:
+
+>http://localhost:3000
+
 The package
 ------
 
-The following files are included:
+The examples require **HTML5**. The following files are included:
 
-1. *mergexml.js* - the MergeXML class; supports IE, Firefox, Safari, Chrome, Opera;
-2. *example.html* - multi-selects the xml files and displays result;
-3. *example.js* - passes the xml data and returns result; **requires HTML5**;
-4. *test1.xml, test2.xml* - test data for the example;
-5. *package.json, bower.json* - package details;
-6. *test* - tests framework.
+1. *mergexml.js* - the MergeXML class supporting the browser and NodeJS environments;
+2. *example.html* - multi-selects the xml files and displays result (browser);
+3. *example.js* - passes the xml data and returns result (browser);
+4. *examplen.htm* - client-side template to multi-select the xml files and display result (NodeJS);
+5. *examplen.js* - server-side module to receive requests and response results (NodeJS);
+6. *test1.xml, test2.xml* - test data for the examples;
+7. *package.json, bower.json* - package details;
 
 The MergeXML is realized also in PHP (see [github.com]).
-
-The tests
---------
-
-To run the tests:
-
-1. install dependencies with `npm install`
-2. run tests with `npm test`
-
 
 ChangeLog
 ---------
@@ -92,12 +101,19 @@ ChangeLog
 June 2015
 
 - *mergexml.js*
- - the wrapper is added for a compatibility with the AMD/CommonJS
+  - the wrapper is added for a compatibility with the AMD/CommonJS-like environments
  
 October 2016 (Martijn van de Rijdt)
 
 - *mergexml.js*
- - cloning the namespaced attributes correctly
- - mixing sources of undeclared encoding
+  - cloning the namespaced attributes correctly
+  - mixing sources of undeclared encoding
+
+July 2019
+
+- *mergexml.js*
+  - NodeJS environment support
+- *examplen.js, examplen.htm*
+  - NodeJS usage sample
  
   [github.com]: http://www.github.com/hareko/php-merge-xml
