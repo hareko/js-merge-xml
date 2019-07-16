@@ -584,8 +584,7 @@
     } else {
       updn = opts.updn;
     }
-    /* detect browser features: 2 - IE, 1 - rest, 0 - N/A */
-    mde = GetMode();
+    mde = GetMode(); //check functionality
     if (typeof mde === 'string') {
       that.error = {};
       Error(mde);
