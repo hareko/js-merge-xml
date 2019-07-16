@@ -8,7 +8,7 @@ The nodes with the same path/name are replaced/added sequentially and the modifi
 MergeXML could be useful in cases where it is necessary to gather XML data from multiple sources.
 For example, to join the configuration files of different subsystems depending on the system operation. 
 
-Supports main browsers (IE, Edge, Chrome, Firefox, Safari, Opera) and NodeJS (see below).
+Supports main browsers (Chrome, Edge, IE, Firefox, Safari, Opera) and NodeJS (see below).
 
 The usage
 -----
