@@ -46,12 +46,14 @@
     var mde;        /* access mode 0,1,2 */
     var msv;        /* MS DOM version */
     var psr;        /* DOMParser object */
-    var srl;        /* XMLSerializer object */
     var xpe;        /* xPath evaluator object */
     var xpr;        /* XPathResult object */
-    var nsr;        /* namespace resolver method*/
-    var nsd = '_';  /* default namespace prefix */
-    var nse;        /* parsererror namespace */
+    var nsr;        /* namespace resolver method */
+    var nsd = {/* default namespace prefix & name */
+      pfx: '_',
+      nme: 'http://www.w3.org/1999/xhtml'
+    };
+    var erp;        /* parsing error flag */
     var stay;       /* overwrite protection */
     var join;       /* joining root name and status*/
     var updn;       /* update nodes sequentially by name */
@@ -110,7 +112,7 @@
         }
       }
       if (doc === null) {
-        rlt = Error('nos');
+        rlt = Error('nob');
       } else if (doc === false) {
         rlt = Error('inv');
       } else if (doc === true) {
@@ -141,6 +143,7 @@
     var Load = function (src) {
       var rlt, doc;
       if (mde > 1) {
+        erp = false;
         if (that.dom) {
           doc = psr.parseFromString(src, 'text/xml');
           rlt = ParseError(doc) ? doc : false;
@@ -162,12 +165,12 @@
     };
 
     /**
-     * check for xml syntax (mode 1)
+     * check for xml syntax (mode 2)
      * @param {object} doc
      * @return {bool} -- true - ok
      */
     var ParseError = function (doc) {
-      return doc.getElementsByTagNameNS(nse, 'parsererror').length === 0;
+      return !erp && doc.getElementsByTagNameNS(nsd.nme, 'parsererror').length === 0;
     };
 
     /**
@@ -306,7 +309,7 @@
           var f = false;
           var a = NameSpaces(node);
           for (var c in a) {
-            if (c !== nsd) {
+            if (c !== nsd.pfx) {
               that.nsp[c] = a[c];
               f = (mde === 1);
             }
@@ -316,8 +319,8 @@
           }
           if (node.prefix) {
             p = node.prefix + ':';
-          } else if (that.nsp[nsd]) {
-            p = nsd + ':';
+          } else if (that.nsp[nsd.pfx]) {
+            p = nsd.pfx + ':';
           } else {
             p = '';
           }
@@ -352,7 +355,7 @@
       for (var i = 0; i < attrs.length; ++i) {
         var a = attrs[i].name.split(':');
         if (a[0] === 'xmlns') {
-          var c = a[1] ? a[1] : nsd;
+          var c = a[1] ? a[1] : nsd.pfx;
           rlt[c] = attrs[i].value;
         }
       }
@@ -448,7 +451,7 @@
         rlt = doc.xml;
       } else {
         try {
-          rlt = srl.serializeToString(doc);
+          rlt = (new XMLSerializer()).serializeToString(doc);
         } catch (e) {
           rlt = e.message;
           flg = null;
@@ -473,8 +476,9 @@
     var Error = function (err) {
       var errs = {
         nod: 'XML DOM is not supported in this browser',
+        nos: 'xPath is not supported in this browser',
         nox: 'xPath is not supported in this browser',
-        nos: 'Incompatible source object',
+        nob: 'Incompatible source object',
         nof: 'File not found',
         emf: 'File is empty', /* possible delivery fault */
         inv: 'Invalid XML source',
@@ -500,7 +504,7 @@
     var GetMode = function () {
       var m;
       var f = false;
-      var vers = [ //IE 
+      var vers = [//IE 
         'MSXML2.DOMDocument.6.0',
         'MSXML2.DOMDocument.3.0',
         'MSXML2.DOMDocument',
@@ -539,21 +543,22 @@
         }
         if (!env.DOMParser) {
           m = 'nod';  /* no DOM */
+        } else if (!env.XMLSerializer) {
+          m = 'nos';  /* no Serializer */
         } else if (!env.XPathEvaluator) {
           m = 'nox';  /* no xPath */
-        } else {
+        } else if (m === 2) { //browser
           psr = new env.DOMParser();
-          srl = new env.XMLSerializer();
-          var e = psr.parseFromString('Invalid', 'text/xml'); /* to detect source error */
-          if (m === 2) {
-            xpe = new env.XPathEvaluator();
-            xpr = env.XPathResult;
-            nse = e.getElementsByTagName('parsererror')[0].namespaceURI;
-          } else {
-            xpe = env.XPathEvaluator;
-            xpr = env.XPathEvaluator.XPathResult;
-            nse = 'http://www.w3.org/1999/xhtml';
-          }
+          xpe = new env.XPathEvaluator();
+          xpr = env.XPathResult;
+          f = psr.parseFromString('<invalid', 'text/xml'); /* force source error */
+          nsd.nme = f.getElementsByTagName('parsererror')[0].namespaceURI; //browser default namespace
+        } else {
+          psr = new env.DOMParser({xmlns: nsd.nme, errorHandler: function (e) {
+              erp = true; //indicate parse error
+            }});
+          xpe = env.XPathEvaluator;
+          xpr = env.XPathEvaluator.XPathResult;
         }
       }
       return m;
