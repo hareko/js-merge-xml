@@ -70,7 +70,7 @@ The browser window objects' (*DOMParser, XPathEvaluator, XMLSerializer*) functio
 
 Install the modules by starting **NPM** from the directory where you have downloaded the package files:
 
->npm i -D xpath xmldom formidable
+>npm install xpath xmldom formidable
 
 Start the NodeJS service with the sample script:
 
