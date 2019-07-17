@@ -212,7 +212,7 @@
         for (var c in a) {
           if (!that.nsp[c]) {
             if (typeof that.dom.documentElement.setAttributeNS !== 'undefined') {
-              that.dom.documentElement.setAttributeNS(nsd.nme, 'xmlns:' + c, a[c]);
+              that.dom.documentElement.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:' + c, a[c]);
             } else {
               // no choice but to use the incorrect setAttribute instead
               that.dom.documentElement.setAttribute('xmlns:' + c, a[c]);
