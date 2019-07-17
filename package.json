@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/hareko/js-merge-xml/issues"
   },
-  "devDependencies": {
+  "dependencies": {
     "formidable": "^1.2.1",
     "xmldom": "^0.1.27",
     "xpath": "0.0.27"
