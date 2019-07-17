@@ -66,7 +66,7 @@ IE doesn't allow replacement of the root node attributes.
 
 NodeJS
 ------
-The browser window objects' (*DOMParser, XPathEvaluator, XMLSerializer*) functionality is implemented by the *xpath, xmldom* modules. The sample requires also the *formidable* module.
+The browser window objects' (*DOMParser, XPathEvaluator, XMLSerializer*) functionality is implemented by the *xpath, xmldom* modules as node global objects. The sample requires also the *formidable* module.
 
 Install the modules by starting **NPM** from the directory where you have downloaded the package files:
 
