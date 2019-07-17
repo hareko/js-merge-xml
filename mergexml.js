@@ -476,7 +476,7 @@
     var Error = function (err) {
       var errs = {
         nod: 'XML DOM is not supported in this browser',
-        nos: 'xPath is not supported in this browser',
+        nos: 'Serializer is not supported in this browser',
         nox: 'xPath is not supported in this browser',
         nob: 'Incompatible source object',
         nof: 'File not found',
