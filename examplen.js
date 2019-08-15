@@ -8,22 +8,46 @@
  */
 
 const http = require('http');
-const fs = require('fs');
-const formidable = require('formidable');
-const MergeXML = require('./mergexml.js');
+const fs = require('fs'); //read/remove uploaded files
+const formidable = require('formidable'); //to process the uploads
+
+const MergeXML = require('./mergexml.js'); //loading the class
+/* const oMX = new (require('./mergexml.js'))(); //load and instantiate */
 
 const hostname = '127.0.0.1';
 const port = 3000;
 const template = 'examplen.htm';
+
+const server = http.createServer((req, res) => {
+  if (req.method === 'POST') { //merge uploaded
+    let form = new formidable.IncomingForm();
+    form.multiples = true; //multi-selected files
+    form.parse(req, (err, fields, files) => { //process form data
+      let f = Object.keys(files)[0]; //1st property is files[]
+      let dat = Merge(files[f]);
+      Respond(res, dat); //display result
+    });
+  } else if (req.url === '/') {
+    fs.readFile(template, (err, data) => {  //get template html
+      if (!err && data) { //obtained
+        let dat = data.toString().replace('%url%', `http://${hostname}:${port}`); //set action url
+        Respond(res, dat, 'html'); //launch the page
+      } else {
+        Respond(res, `Cannot read '${template}'`);
+      }
+    });
+  }
+}).listen(port, hostname, () => {
+  console.log(`NodeJS is running at http://${hostname}:${port}`);
+});
 
 /**
  * send response
  * @param {object} res
  * @param {string} type plain|html
  * @param {string} data
- * @returns {undefined}
  */
-const Respond = function (res, type, data) {
+const Respond = function (res, data, type = 'plain') {
   res.writeHead(200, {'Content-Type': `text/${type}`, 'Content-Length': data.length});
   res.write(data);
   res.end();
@@ -36,8 +60,9 @@ const Respond = function (res, type, data) {
  */
 const Merge = function (files) {
   let oMX = new MergeXML();
+  /*  oMX.Init(); //using global instance */
   for (let i = 0; i < files.length; i++) {
-    let dat = fs.readFileSync(files[i].path).toString(); 
+    let dat = fs.readFileSync(files[i].path).toString();
     fs.unlinkSync(files[i].path);
     if (!oMX.AddSource(dat)) {
       break;
@@ -49,32 +74,7 @@ const Merge = function (files) {
   } else if (oMX.count < 2) {
     rlt = 'Minimum 2 files are required';
   } else {
-    rlt = oMX.Get(2);
+    rlt = oMX.Get(1);
   }
   return rlt;
 };
-
-const server = http.createServer((req, res) => {
-  if (req.method === 'POST') { //merge uploaded
-    var form = new formidable.IncomingForm();
-    form.multiples = true;
-    form.parse(req, (err, fields, files) => {
-      let f = Object.keys(files)[0]; //first property name
-      let dat = Merge(files[f]);
-      Respond(res, 'html', dat);
-    });
-  } else if (req.url === '/') { //get html
-    fs.readFile(template, (err, data) => {
-      if (!err && data) {
-        let dat = data.toString().replace('%url%', `http://${hostname}:${port}`);
-        Respond(res, 'html', dat);
-      } else {
-        Respond(res, 'plain', `Cannot load '${template}'`);
-      }
-    });
-  }
-});
-
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
