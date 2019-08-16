@@ -12,15 +12,15 @@ Main browsers (Chrome, Edge, IE, Firefox, Safari, Opera) and NodeJS (see below) 
 
 The usage
 -----
-MergeXML class can be included:
 
-1) as a global script:
-
-**`<script src="mergexml.js"></script>`**
-
-2) loading as a CommonJS module:
+1) loading as a CommonJS module:
 
 **`const MergeXML = require('./mergexml');`**
+MergeXML class can be included:
+
+2) as a global script:
+
+**`<script src="mergexml.js"></script>`**
 
 The class instantiation:
 
@@ -82,7 +82,11 @@ IE doesn't allow replacement of the root node attributes.
 
 Installation
 ------------
-Download the [js-merge-xml] package from Github and unzip the files into installation directory. 
+
+Run from appropriate directory:
+>npm install mergexml
+
+Or manually download the [js-merge-xml] package from Github and unzip the files into installation directory. 
 
 Run the sample in your browser (**HTML5** compatible):
 
