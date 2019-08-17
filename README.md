@@ -109,7 +109,7 @@ NodeJS
 ------
 The browser window objects' (*DOMParser, XPathEvaluator, XMLSerializer*) functionality is implemented by the *xpath, xmldom* modules as node global objects. The sample requires also the *formidable* module. 
 
-Install the modules into the directory where you have installed the package:
+Install the dependent modules:
 
 >npm install --prod
 
