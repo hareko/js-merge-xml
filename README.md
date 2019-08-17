@@ -6,7 +6,7 @@ The merging is performed recursively on the node level adding new elements and r
 The nodes with the same path/name are replaced/added sequentially and the modification can be controlled by the options.
 
 MergeXML could be useful in cases where it is necessary to gather XML data from multiple sources.
-For example, to join the configuration files of different subsystems depending on the operation logic. 
+For example, to combine configuration files of different subsystems depending on the application logic. 
 
 Main browsers (Chrome, Edge, IE, Firefox, Safari, Opera) and NodeJS (see below) are supported. The MergeXML is realized also in PHP (see [php-merge-xml]).
 
