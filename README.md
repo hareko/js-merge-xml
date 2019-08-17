@@ -12,11 +12,11 @@ Main browsers (Chrome, Edge, IE, Firefox, Safari, Opera) and NodeJS (see below) 
 
 The usage
 -----
+MergeXML class can be included:
 
 1) loading as a CommonJS module:
 
 **`const MergeXML = require('./mergexml');`**
-MergeXML class can be included:
 
 2) as a global script:
 
