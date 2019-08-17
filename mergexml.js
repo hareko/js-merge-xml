@@ -10,6 +10,8 @@
 
 /**
  * AMD/CommonJS wrapper
+ * @author Martijn van de Rijdt
+ * 
  * @param {object} root
  * @param {function} factory
  */
@@ -22,15 +24,6 @@
     // Does not work with strict CommonJS, 
     // but only CommonJS-like environments 
     // that support module.exports, like Node
-    if (typeof process !== 'undefined' && process.versions && process.versions.node) {
-      try {  //obtain NodeJS modules
-        global.XPathEvaluator = require('xpath');
-        global.DOMParser = require('xmldom').DOMParser;
-        global.XMLSerializer = require('xmldom').XMLSerializer;
-      } catch (e) {
-        console.log(e.message);
-      }
-    }
     module.exports = factory();
   } else {
     // Direct call, root is the owner (window)
@@ -39,19 +32,20 @@
 }(this, function () {
   /**
    * Return a function as the exported value
-   * @param {object} opts -- stay, join, updn (see readme)
+   * @param {object} opts -- processiong options (see readme)
    */
   return function (opts) {
 
-    var mde;        /* access mode 0,1,2 */
+    var mde;        /* access mode: 1 - IE, 2 - browser, 3 - nodejs */
     var msv;        /* MS DOM version */
     var psr;        /* DOMParser object */
     var xpe;        /* xPath evaluator object */
     var xpr;        /* XPathResult object */
     var nsr;        /* namespace resolver method */
-    var nsd = {/* default namespace prefix & name */
+    var nsd = {/* default namespace prefix and URIs */
       pfx: '_',
-      nme: 'http://www.w3.org/1999/xhtml'
+      psr: 'http://www.w3.org/1999/xhtml',
+      xpe: 'http://www.w3.org/2000/xmlns/'
     };
     var erp;        /* parsing error flag */
     var stay;       /* overwrite protection */
@@ -63,15 +57,137 @@
     var XML_PI_NODE = 7;
     var that = this;
 
-    that.Init = function () {
+    var Init = function () {
+      that.error = {};
+      /* detect NodeJS environment */
+      if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+        var p = typeof opts === 'object' && typeof opts.path === 'string' ? opts.path : '';
+        try {  //obtain xml support
+          global.XPathEvaluator = require(p + 'xpath');
+          global.DOMParser = require(p + 'xmldom').DOMParser;
+          global.XMLSerializer = require(p + 'xmldom').XMLSerializer;
+        } catch (e) {
+          console.log(e.message);
+        }
+      }
+      mde = Setup(); //set mode
+      that.Init(opts);
+    };
+
+    /**
+     * determine mode, set functionality
+     * @returns {mixed} -- int - mode
+     *                     false - failed 
+     */
+    var Setup = function () {
+      var m;
+      var f = false;
+      var vers = [//IE 
+        'MSXML2.DOMDocument.6.0',
+        'MSXML2.DOMDocument.3.0',
+        'MSXML2.DOMDocument',
+        'Microsoft.XmlDom'
+      ];
+      var n = vers.length;
+      for (var i = 0; i < n; i++) {
+        try {
+          var d = new ActiveXObject(vers[i]);
+          d.async = false;
+          f = true;   /* DOM supported */
+          if (d.loadXML('<x></x>') && d.selectSingleNode('/')) {
+            break;    /* xPath supported */
+          }
+        } catch (e) {
+          /* skip */
+        }
+      }
+      if (f) {
+        if (i < n) {
+          msv = vers[i];
+          m = 1;  /* IE mode */
+        } else {
+          m = 'nox';  /* no xPath */
+        }
+      } else {
+        var env;
+        if (typeof window !== 'undefined') {
+          env = window;
+          m = 2;  // any browser 
+        } else if (typeof global !== 'undefined') {
+          env = global;
+          m = 3; // NodeJS
+        } else {
+          env = {}; //unknown
+        }
+        if (!env.DOMParser) {
+          m = 'nod';  /* no DOM */
+        } else if (!env.XMLSerializer) {
+          m = 'nos';  /* no Serializer */
+        } else if (!env.XPathEvaluator) {
+          m = 'nox';  /* no xPath */
+        } else if (m === 2) { //browser
+          psr = new env.DOMParser();
+          xpe = new env.XPathEvaluator();
+          xpr = env.XPathResult;
+          f = psr.parseFromString('<invalid', 'text/xml'); /* force parsing error */
+          nsd.psr = f.getElementsByTagName('parsererror')[0].namespaceURI; //browser default namespace
+        } else {
+          psr = new env.DOMParser({xmlns: nsd.psr, errorHandler: function () {
+              erp = true; //indicate parse error
+            }});
+          xpe = env.XPathEvaluator;
+          xpr = env.XPathEvaluator.XPathResult;
+          nsd.xpe = xpe.XPath.XMLNS_NAMESPACE_URI;
+        }
+      }
+      return typeof m === 'string' ? Error(m) : m;
+    };
+
+    /**
+     * (re)set the objects
+     * @param {object} opt -- processiong options
+     * @returns {mixed} -- false - error 
+     */
+    that.Init = function (opt) {
+      if (typeof opt !== 'object') {
+        opt = {};
+      }
+      /* set stay attribute value to check */
+      if (typeof opt.stay === 'undefined') {
+        if (typeof stay === 'undefined') {
+          stay = ['all'];
+        }
+      } else if (!opt.stay) {
+        stay = [];
+      } else if (typeof opt.stay === 'object' && opt.stay instanceof Array) {
+        stay = opt.stay;
+      } else {
+        stay = [opt.stay];
+      }
+      /* set join condition for different roots */
+      if (typeof opt.join === 'undefined') {
+        if (typeof join === 'undefined') {
+          join = ['root'];
+        }
+      } else if (!opt.join) {
+        join = [false];
+      } else {
+        join = [String(opt.join)];
+      }
+      join[1] = false;
+      /* set update sequence manner */
+      if (typeof opt.updn !== 'undefined') {
+        updn = opt.updn; 
+      } else if (typeof updn === 'undefined') {
+        updn = true; 
+      }
       that.dom = null; /* result DOM object */
       that.nsp = {};   /* namespaces */
       that.count = 0; /* adding counter */
-      join[1] = false;
-      if (mde > 0) {
+      if (mde) {
         that.error = {code: '', text: ''};
       }
-      return (mde > 0);
+      return mde;
     };
 
     /**
@@ -81,7 +197,9 @@
      */
     that.AddFile = function (file) {
       var rlt;
-      if (!file || !file.target) {
+      if (!mde) {
+        rlt = mde;
+      } else if (!file || !file.target) {
         rlt = Error('nof');
       } else if (!file.target.result) {
         rlt = Error('emf');
@@ -99,19 +217,23 @@
      */
     that.AddSource = function (xml) {
       var rlt, doc;
-      if (typeof xml === 'object') {
-        doc = that.Get(1, xml) ? xml : false;
-        if (doc && ((mde > 1 && !DOMParser) || (mde === 1 && !doc.selectSingleNode('/')))) {
-          doc = null; /* not compatible */
-        }
-      } else {
-        try {
-          doc = Load(xml);
-        } catch (e) {
-          doc = false;
+      if (mde) {
+        if (typeof xml === 'object') {
+          doc = that.Get(1, xml) ? xml : false;
+          if (doc && ((mde > 1 && !DOMParser) || (mde === 1 && !doc.selectSingleNode('/')))) {
+            doc = null; /* not compatible */
+          }
+        } else {
+          try {
+            doc = Load(xml);
+          } catch (e) {
+            doc = false;
+          }
         }
       }
-      if (doc === null) {
+      if (!mde) {
+        rlt = mde;
+      } else if (doc === null) {
         rlt = Error('nob');
       } else if (doc === false) {
         rlt = Error('inv');
@@ -170,7 +292,7 @@
      * @return {bool} -- true - ok
      */
     var ParseError = function (doc) {
-      return !erp && doc.getElementsByTagNameNS(nsd.nme, 'parsererror').length === 0;
+      return !erp && !doc.getElementsByTagNameNS(nsd.psr, 'parsererror').length;
     };
 
     /**
@@ -212,7 +334,7 @@
         for (var c in a) {
           if (!that.nsp[c]) {
             if (typeof that.dom.documentElement.setAttributeNS !== 'undefined') {
-              that.dom.documentElement.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:' + c, a[c]);
+              that.dom.documentElement.setAttributeNS(nsd.xpe, 'xmlns:' + c, a[c]);
             } else {
               // no choice but to use the incorrect setAttribute instead
               that.dom.documentElement.setAttribute('xmlns:' + c, a[c]);
@@ -368,6 +490,9 @@
      * @return {object}
      */
     that.Query = function (qry) {
+      if (!mde) {
+        return null;
+      }
       var rlt;
       if (join[1]) {
         qry = '/' + that.dom.documentElement.nodeName + (qry === '/' ? '' : qry);
@@ -393,12 +518,6 @@
     that.lookupNamespaceURI = function (pfx) {
       return that.nsp[pfx] || null;
     };
-    /*    var Resolver = function (pfx) {
-     this.lookupNamespaceURI = function (_pfx) {
-     return that.nsp[_pfx] || null;
-     };
-     return this.lookupNamespaceURI(pfx);
-     }; */
 
     /**
      * XPath IE Resolver 
@@ -443,7 +562,9 @@
       if (flg && !doc) {
         doc = that.dom;
       }
-      if (!flg) {
+      if (!mde) {
+        rlt = that.error.text;
+      } else if (!flg) {
         rlt = that.dom;
       } else if (!doc) {
         rlt = '';
@@ -471,13 +592,13 @@
     /**
      * set error message
      * @param {string} err -- token
-     * @return {false}
+     * @return {bool} false
      */
     var Error = function (err) {
       var errs = {
-        nod: 'XML DOM is not supported in this browser',
-        nos: 'Serializer is not supported in this browser',
-        nox: 'xPath is not supported in this browser',
+        nod: 'XML DOM is not supported',
+        nos: 'Serializer is not supported',
+        nox: 'xPath is not supported',
         nob: 'Incompatible source object',
         nof: 'File not found',
         emf: 'File is empty', /* possible delivery fault */
@@ -493,108 +614,6 @@
       return false;
     };
 
-    /**
-     * detect evironment, check functionality
-     * @return {int} -- mode: 0 - N/A
-     *                        1 - IE
-     *                        2 - browser
-     *                        3 - nodejs
-     *         {string} -- error code
-     */
-    var GetMode = function () {
-      var m;
-      var f = false;
-      var vers = [//IE 
-        'MSXML2.DOMDocument.6.0',
-        'MSXML2.DOMDocument.3.0',
-        'MSXML2.DOMDocument',
-        'Microsoft.XmlDom'
-      ];
-      var n = vers.length;
-      for (var i = 0; i < n; i++) {
-        try {
-          var d = new ActiveXObject(vers[i]);
-          d.async = false;
-          f = true;   /* DOM supported */
-          if (d.loadXML('<x></x>') && d.selectSingleNode('/')) {
-            break;    /* xPath supported */
-          }
-        } catch (e) {
-          /* skip */
-        }
-      }
-      if (f) {
-        if (i < n) {
-          msv = vers[i];
-          m = 1;  /* IE mode */
-        } else {
-          m = 'nox';  /* no xPath */
-        }
-      } else {
-        var env;
-        if (typeof window !== 'undefined') {
-          env = window;
-          m = 2;  /* Edge, Firefox, Safari, Chrome, Opera */
-        } else if (typeof global !== 'undefined') {
-          env = global;
-          m = 3; // NodeJS
-        } else {
-          env = {}; //unknown
-        }
-        if (!env.DOMParser) {
-          m = 'nod';  /* no DOM */
-        } else if (!env.XMLSerializer) {
-          m = 'nos';  /* no Serializer */
-        } else if (!env.XPathEvaluator) {
-          m = 'nox';  /* no xPath */
-        } else if (m === 2) { //browser
-          psr = new env.DOMParser();
-          xpe = new env.XPathEvaluator();
-          xpr = env.XPathResult;
-          f = psr.parseFromString('<invalid', 'text/xml'); /* force source error */
-          nsd.nme = f.getElementsByTagName('parsererror')[0].namespaceURI; //browser default namespace
-        } else {
-          psr = new env.DOMParser({xmlns: nsd.nme, errorHandler: function (e) {
-              erp = true; //indicate parse error
-            }});
-          xpe = env.XPathEvaluator;
-          xpr = env.XPathEvaluator.XPathResult;
-        }
-      }
-      return m;
-    };
-
-    if (typeof opts !== 'object') {
-      opts = {};
-    }
-    /* set stay attribute value to check */
-    if (typeof opts.stay === 'undefined') {
-      stay = ['all'];
-    } else if (!opts.stay) {
-      stay = [];
-    } else if (typeof opts.stay === 'object' && opts.stay instanceof Array) {
-      stay = opts.stay;
-    } else {
-      stay = [opts.stay];
-    }
-    /* set join condtion for different roots */
-    if (typeof opts.join === 'undefined') {
-      join = ['root'];
-    } else {
-      join = [opts.join ? String(opts.join) : false];
-    }
-    /* set update sequence manner */
-    if (typeof opts.updn === 'undefined') {
-      updn = true;
-    } else {
-      updn = opts.updn;
-    }
-    mde = GetMode(); //check functionality
-    if (typeof mde === 'string') {
-      that.error = {};
-      Error(mde);
-      mde = 0;
-    }
-    that.Init();
+    Init();
   };
 }));
