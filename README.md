@@ -83,7 +83,7 @@ IE doesn't allow replacement of the root node attributes.
 Installation
 ------------
 
-Run from appropriate directory:
+Run from the appropriate directory:
 >npm install mergexml
 
 Or manually download the [js-merge-xml] package from Github and unzip the files into installation directory. 
