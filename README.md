@@ -14,11 +14,11 @@ The usage
 -----
 MergeXML class can be included:
 
-1) loading as a CommonJS module:
+1. loading as a CommonJS module:
 
 **`const MergeXML = require('./mergexml');`**
 
-2) as a global script:
+2. as a global script:
 
 **`<script src="mergexml.js"></script>`**
 
