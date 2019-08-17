@@ -1,6 +1,6 @@
 /**
- * JS MergeXML browser usage sample
- * merge multi-select local xml files
+ * JS MergeXML usage sample
+ * merge multi-selected local xml files
  *
  * @package     MergeXML
  * @author      Vallo Reima
