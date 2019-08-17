@@ -150,7 +150,7 @@ October 2016 (Martijn van de Rijdt)
   - cloning the namespaced attributes correctly
   - mixing sources of undeclared encoding
 
-July 2019 (Vallo Reima)
+August 2019 (Vallo Reima)
 
 - *mergexml.js*
   - NodeJS environment support
