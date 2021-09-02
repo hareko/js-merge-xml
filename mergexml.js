@@ -64,8 +64,8 @@
         var p = typeof opts === 'object' && typeof opts.path === 'string' ? opts.path : '';
         try {  //obtain xml support
           global.XPathEvaluator = require(p + 'xpath');
-          global.DOMParser = require(p + 'xmldom').DOMParser;
-          global.XMLSerializer = require(p + 'xmldom').XMLSerializer;
+          global.DOMParser = require((p || '@xmldom/') + 'xmldom').DOMParser;
+          global.XMLSerializer = require((p || '@xmldom/') + 'xmldom').XMLSerializer;
         } catch (e) {
           console.log(e.message);
         }
