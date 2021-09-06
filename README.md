@@ -156,6 +156,11 @@ August 2019 (Vallo Reima)
   - NodeJS environment support
 - *examplen.js, examplen.htm*
   - NodeJS usage sample
+
+September 2021 (eyelidlessness)
+
+- *mergexml.js*
+  - Upgrade xmldom to @xmldom/xmldom
  
 [php-merge-xml]: http://www.github.com/hareko/php-merge-xml
 [js-merge-xml]: http://www.github.com/hareko/js-merge-xml
