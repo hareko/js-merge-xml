@@ -1,6 +1,6 @@
 {
   "name": "mergexml",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Merge multiple XML sources",
   "main": "mergexml.js",
   "moduleType": [
