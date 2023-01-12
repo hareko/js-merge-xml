@@ -35,6 +35,6 @@
     "karma-mocha": "1.2.x",
     "karma-opera-launcher": "1.0.x",
     "karma-safari-launcher": "1.0.x",
-    "mocha": "3.1.x"
+    "mocha": "10.2.x"
   }
 }
