@@ -20,12 +20,12 @@
     "url": "https://github.com/hareko/js-merge-xml/issues"
   },
   "dependencies": {
-    "formidable": "^1.2.1",
     "@xmldom/xmldom": "^0.7.0",
     "xpath": "0.0.27"
   },
   "devDependencies": {
     "chai": "3.0.x",
+    "formidable": "^1.2.1",
     "jasmine-core": "2.0.x",
     "karma": "6.3.x",
     "karma-chai": "0.1.x",
