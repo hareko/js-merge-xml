@@ -20,7 +20,7 @@
     "url": "https://github.com/hareko/js-merge-xml/issues"
   },
   "dependencies": {
-    "formidable": "^1.2.1",
+    "formidable": "^3.5.1",
     "@xmldom/xmldom": "^0.7.0",
     "xpath": "0.0.27"
   },
